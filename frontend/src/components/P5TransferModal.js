@@ -1,15 +1,18 @@
-// P5TransferModal.js
-
 import React, { useState } from "react";
 
-const P5TransferModal = ({ users, onClose, onTransfer }) => {
+const P5TransferModal = ({ users, onClose, onTransfer, id }) => {
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState(0);
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    // Perform validation and call onTransfer function
-    onTransfer(recipient, parseInt(amount, 10)); // Parse amount to ensure it's a number
+    console.log("Recipient:", recipient);
+    console.log("Amount:", amount);
+    if (recipient && amount > 0) {
+      onTransfer(recipient, parseInt(amount, 10));
+    } else {
+      console.error("Recipient and amount must be selected");
+    }
   };
 
   return (
@@ -23,13 +26,13 @@ const P5TransferModal = ({ users, onClose, onTransfer }) => {
             onChange={(e) => setRecipient(e.target.value)}
           >
             <option value="">Select recipient</option>
-            {users.map((user) => (
-              <option key={user._id} value={user._id}>
-                {" "}
-                {/* Use user._id instead of user.id */}
-                {user.name}
-              </option>
-            ))}
+            {users
+              .filter((user) => user._id !== id)
+              .map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.name}
+                </option>
+              ))}
           </select>
         </label>
         <label>

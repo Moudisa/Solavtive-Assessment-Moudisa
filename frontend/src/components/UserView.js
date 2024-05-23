@@ -1,5 +1,3 @@
-// UserView.js
-
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import P5TransferModal from "./P5TransferModal";
@@ -14,6 +12,7 @@ const UserView = () => {
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -23,8 +22,8 @@ const UserView = () => {
           const data = await response.json();
           setUser(data);
           setName(data.name);
-          setP5Balance(data.p5Balance); // Set P5 balance
-          setRewardBalance(data.rewardBalance); // Set reward balance
+          setP5Balance(data.p5Balance);
+          setRewardBalance(data.rewardBalance);
           setLoading(false);
         } else {
           console.error("Failed to fetch user");
@@ -41,7 +40,7 @@ const UserView = () => {
         const response = await fetch("http://localhost:5000/users");
         if (response.ok) {
           const data = await response.json();
-          setUsers(data.filter((u) => u.id !== id)); // Exclude current user
+          setUsers(data.filter((u) => u._id !== id));
         } else {
           console.error("Failed to fetch users");
         }
@@ -118,8 +117,10 @@ const UserView = () => {
         setP5Balance(updatedUser.p5Balance);
         setRewardBalance(updatedUser.rewardBalance);
         setShowModal(false);
-        navigate("/"); // Navigate back to home page
+        navigate("/");
       } else {
+        const data = await response.json();
+        setErrorMessage(data.error);
         console.error("Failed to transfer P5 points");
       }
     } catch (error) {
@@ -154,15 +155,17 @@ const UserView = () => {
       <button onClick={handleTransferPoints}>Transfer P5 Points</button>
       {showModal && (
         <P5TransferModal
-          users={users} // Pass list of other users
+          users={users}
           onClose={handleCloseModal}
           onTransfer={handleTransferP5Points}
+          id={id}
         />
       )}
       <div>
         <h3>P5 Balance: {p5Balance}</h3>
         <h3>Reward Balance: {rewardBalance}</h3>
       </div>
+      {errorMessage && <p>{errorMessage}</p>}
     </div>
   );
 };
